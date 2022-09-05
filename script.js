@@ -2,9 +2,17 @@ const holes = document.querySelectorAll('.hole');
 const scoreBoard = document.querySelector('.score');
 const moles = document.querySelectorAll('.mole');
 const startBtn = document.querySelector("#start-game");
+const levels = document.querySelector(".levels");
+const easy = levels.querySelector("#easy");
+const medium = levels.querySelector("#medium");
+const high = levels.querySelector("#hard");
+const highScore = document.querySelector("#highScore");
 let lastHole;
 let timeUp = false;
 let score = 0;
+
+// Getting Highscore from localStorage
+highScore.textContent = localStorage.getItem("score");
 
 
 function randomTime(max,min) {
@@ -31,9 +39,9 @@ function randomHole(holes) {
     return hole;
 }
 
-function peep() {
+function peep(min,max) {
     // Time => random time for how much mole will be up
-    const time = randomTime(200,1000);
+    const time = randomTime(min,max);
 
     // hole => randome hole at which mole will appear
     const hole = randomHole(holes);
@@ -45,7 +53,7 @@ function peep() {
     setTimeout(() => {
         hole.classList.remove("up");
         // if time is not up, we keep running peep() function
-        if(!timeUp) peep();
+        if(!timeUp) peep(min,max);
     },time)
 }
 
@@ -57,11 +65,22 @@ function startGame() {
     score = 0;
 
     // call the peep() function to make mole appear in holes
-    peep();
+    if(easy.checked) {
+        peep(500,1200);
+    } else if(medium.checked) {
+        peep(200,1000);
+    } else if(hard.checked) {
+        peep(50,300);
+    }
 
     // after Ten seconds, game will stop
-    setTimeout(() => timeUp = true, 10000);
-
+    setTimeout(() => {
+        timeUp = true;
+        if( localStorage.getItem("score") == null || score > localStorage.getItem("score") ) {
+            localStorage.setItem("score",score);
+            highScore.textContent = localStorage.getItem("score");
+        }
+    }, 10000);
     
 }
 
